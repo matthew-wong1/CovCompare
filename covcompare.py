@@ -1,6 +1,5 @@
-import json
-import sys
-
+import json, sys
+import pandas as pd
 
 def load_dict_from_file(file_path):
     """ Load JSON dictionary from a file. """
@@ -44,13 +43,31 @@ def parse_non_covered_lines(coverage_dict):
     return all_non_covered_lines
 
 
+def compare_coverage(fuzzer_non_covered_lines, cts_non_covered_lines):
+    pass
+
+
+def display_difference(difference_in_coverage):
+    df = pd.DataFrame(list(difference_in_coverage.items()), columns=['File', 'Coverage Percentage'])
+    sorted_df = sorted_df = df.sort_values(by='File', ascending=False)
+    print(sorted_df)
+
+
 def main(fuzzer_coverage_path, cts_coverage_path):
+    # Get coverage stats from JSON
     fuzzer_coverage_dict = load_dict_from_file(fuzzer_coverage_path)
     cts_coverage_dict = load_dict_from_file(cts_coverage_path)
 
+    # Parse all the non covered lines by file
     fuzzer_non_covered_lines = parse_non_covered_lines(fuzzer_coverage_dict)
-    print(fuzzer_non_covered_lines)
     cts_non_covered_lines = parse_non_covered_lines(cts_coverage_dict)
+
+    # Get a dictionary of the percent covered by fuzzer but not CTS
+    difference_in_coverage = compare_coverage(fuzzer_non_covered_lines, cts_non_covered_lines)
+
+    # Print to dataframe
+    display_difference(difference_in_coverage)
+
 
 # File paths (replace these with the actual paths to your JSON files)
 fuzzer_coverage_path = './webglitch_coverage_formatted.json'
