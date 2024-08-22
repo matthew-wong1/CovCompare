@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+api_coverage_formatted.json
 
 # Distribution / packaging
 .Python
