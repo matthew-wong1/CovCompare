@@ -85,11 +85,14 @@ def compare_coverage(fuzzer_non_covered_lines, cts_non_covered_lines):
         file_coverage_info = {'fuzzer_percentage': fuzzer_percent_coverage, 'cts_percentage': cts_non_covered_lines[file]['percentage']}
 
         lines_not_covered_by_fuzzer = coverage_data['non_covered_lines']
-        lines_not_covered_by_cts = cts_non_covered_lines[file]['non_covered_lines']
 
-        lines_covered_by_fuzzer_but_not_cts = lines_not_covered_by_cts.difference(lines_not_covered_by_fuzzer)
+        if file not in cts_non_covered_lines:
+            file_coverage_info['lines_missed'] = "Entire file"
+        else:
+            lines_not_covered_by_cts = cts_non_covered_lines[file]['non_covered_lines']
+            lines_covered_by_fuzzer_but_not_cts = lines_not_covered_by_cts.difference(lines_not_covered_by_fuzzer)
+            file_coverage_info['lines_missed'] = len(lines_covered_by_fuzzer_but_not_cts)
 
-        file_coverage_info['lines_missed'] = len(lines_covered_by_fuzzer_but_not_cts)
         coverage_diff[file] = file_coverage_info
 
     return coverage_diff
