@@ -82,17 +82,22 @@ def compare_coverage(fuzzer_non_covered_lines, cts_non_covered_lines):
 
     for file, coverage_data in fuzzer_non_covered_lines.items():
         fuzzer_percent_coverage = coverage_data['percentage']
-        file_coverage_info = {'fuzzer_percentage': fuzzer_percent_coverage, 'cts_percentage': cts_non_covered_lines[file]['percentage']}
+
+        if file not in cts_non_covered_lines:
+            cts_percent_coverage = 0
+            lines_not_covered_by_cts = set()
+        else:
+            cts_percent_coverage = cts_non_covered_lines[file]['percentage']
+            lines_not_covered_by_cts = cts_non_covered_lines[file]['non_covered_lines']
+
+        file_coverage_info = {'fuzzer_percentage': fuzzer_percent_coverage, 'cts_percentage': cts_percent_coverage}
 
         lines_not_covered_by_fuzzer = coverage_data['non_covered_lines']
 
-        if file not in cts_non_covered_lines:
-            file_coverage_info['lines_missed'] = "Entire file"
-        else:
-            lines_not_covered_by_cts = cts_non_covered_lines[file]['non_covered_lines']
-            lines_covered_by_fuzzer_but_not_cts = lines_not_covered_by_cts.difference(lines_not_covered_by_fuzzer)
-            file_coverage_info['lines_missed'] = len(lines_covered_by_fuzzer_but_not_cts)
 
+        lines_covered_by_fuzzer_but_not_cts = lines_not_covered_by_cts.difference(lines_not_covered_by_fuzzer)
+
+        file_coverage_info['lines_missed'] = len(lines_covered_by_fuzzer_but_not_cts)
         coverage_diff[file] = file_coverage_info
 
     return coverage_diff
@@ -151,8 +156,9 @@ def cov_compare(fuzzer_cov_path, cts_cov_path):
 
 
 # File paths (replace these with the actual paths to your JSON files)
-fuzzer_coverage_path = './webglitch_coverage_formatted.json'
+fuzzer_coverage_path = './webglitch_no_swarm_formatted.json'
 cts_coverage_path = './api_coverage_formatted.json'
 cts_shader_coverage_path = './cts_shader_coverage.json'
 
 df = cov_compare(fuzzer_coverage_path, cts_coverage_path)
+
